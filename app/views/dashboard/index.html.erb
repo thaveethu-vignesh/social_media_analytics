@@ -1,0 +1,10 @@
+<h1>Data Generation Dashboard</h1>
+
+<p>Total Users: <%= @user_count %></p>
+<p>Total Posts: <%= @post_count %></p>
+<p>Total Interactions: <%= @interaction_count %></p>
+
+<p>Last data generation job scheduled: <%= @last_generation %></p>
+
+<%= button_to "Generate Small Dataset", data_generate_path, method: :post %>
+

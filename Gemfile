@@ -65,3 +65,7 @@ gem 'faker'
 
 gem 'cassandra-driver'
 
+gem 'redis'
+
+gem 'hiredis'
+

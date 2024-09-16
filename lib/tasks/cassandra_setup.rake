@@ -12,7 +12,7 @@ namespace :cassandra do
     # Create posts table
     session.execute("CREATE TABLE IF NOT EXISTS posts (
       id UUID PRIMARY KEY,
-      user_id UUID,
+      user_id bigint,
       content TEXT,
       created_at TIMESTAMP
     )")
@@ -20,8 +20,8 @@ namespace :cassandra do
     # Create interactions table
     session.execute("CREATE TABLE IF NOT EXISTS interactions (
       id UUID PRIMARY KEY,
-      user_id UUID,
-      post_id UUID,
+      user_id bigint,
+      post_id bigint,
       interaction_type TEXT,
       created_at TIMESTAMP
     )")

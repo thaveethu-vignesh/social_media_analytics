@@ -1,6 +1,6 @@
 # README
 
-before starting rails server do Run Redis , kafka , zookeeper , sidekiq
+before starting rails server , Run mysql ,  Redis , kafka , zookeeper , sidekiq
 
 User Analytics:
 

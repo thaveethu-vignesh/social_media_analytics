@@ -69,9 +69,14 @@ end
   private
 
   def self.get_user_activity_by_hour(user_id)
+
+
+    #need to check the right approach
+    user_id_bigint = Cassandra::Types::Bigint.new(user_id)
+
     CassandraRepository.session.execute(
       "SELECT * FROM user_activity_by_hour WHERE user_id = ?",
-      arguments: [user_id]
+      arguments: [user_id_bigint]
     )
   end
 

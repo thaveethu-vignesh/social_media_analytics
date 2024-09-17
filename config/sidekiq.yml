@@ -1,0 +1,6 @@
+# config/sidekiq.yml
+
+:schedule:
+  calculate_all_user_influence:
+    cron: '* * * * *'  # Runs at midnight every day
+    class: CalculateAllUserInfluenceJob

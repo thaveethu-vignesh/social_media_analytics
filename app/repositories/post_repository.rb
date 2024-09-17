@@ -10,6 +10,50 @@ class PostRepository < CassandraRepository
     )
     increment_counter("platform_stats", "total_posts", 1)
     increment_user_activity(post.user_id, post.created_at, :post)
+
+    # Save to the time-series table posts_by_time
+    year = post.created_at.year.to_i
+    month = post.created_at.month.to_i
+
+    year_bigint = Cassandra::Types::Bigint.new(year)
+
+    month_bigint = Cassandra::Types::Bigint.new(month)
+
+
+    post_id = Integer(post.id)  
+    user_id = Integer(post.user_id)  
+
+
+    user_id_bigint = Cassandra::Types::Bigint.new(post.user_id)
+
+    post_id_bigint = Cassandra::Types::Bigint.new(post.id)
+
+    session.execute(
+      "INSERT INTO test_sample (year, month, post_id, user_id, content) VALUES (?, ?, ?, ?, ?)",
+      arguments: [year_bigint, month_bigint, post_id_bigint, user_id_bigint, post.content]
+    )
+
+
+    puts "Sample insert done , going to actual insert #{post.inspect} "
+
+    Rails.logger.info("Inserting post: #{post.inspect}")
+
+    post_id = post.id.to_i  # Ensure post_id is an integer
+    user_id = post.user_id.to_i  # Ensure user_id is an integer
+    year = post.created_at.year.to_i
+    month = post.created_at.month.to_i
+    created_at = post.created_at.to_time  # Ensure this is a valid timestamp
+
+    puts "Prepared values: year=#{year}, month=#{month}, post_id=#{post_id}, user_id=#{user_id}, created_at=#{created_at}"
+
+    # Save to the original posts table
+
+    session.execute(
+      "INSERT INTO posts_by_time (year, month, post_id, user_id, content, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+      arguments: [year_bigint, month_bigint, post_id_bigint, user_id_bigint, post.content, post.created_at]
+    )
+
+
   end
 
   def self.find(user_id, post_id)
@@ -118,4 +162,27 @@ end
       arguments: [user_id, hour]
     )
   end
+
+
+
+  def self.posts_since(start_time)
+    year = start_time.year
+    month = start_time.month
+
+    results = session.execute(
+      "SELECT * FROM posts_by_time WHERE year = ? AND month = ? AND created_at >= ?",
+      arguments: [year, month, start_time]
+    )
+    
+    results.map do |row|
+      Post.new(
+        id: row['post_id'],
+        user_id: row['user_id'],
+        content: row['content'],
+        created_at: row['created_at']
+      )
+    end
+  end
+
+
 end

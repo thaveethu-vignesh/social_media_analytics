@@ -10,6 +10,28 @@ class InteractionRepository < CassandraRepository
     )
     increment_counter("platform_stats", "total_interactions", 1)
     increment_user_activity(interaction.user_id, interaction.created_at, :interaction)
+
+
+    # Save to the time-series table interactions_by_time
+    year = interaction.created_at.year
+    month = interaction.created_at.month
+
+    year_bigint = Cassandra::Types::Bigint.new(year)
+
+    month_bigint = Cassandra::Types::Bigint.new(month)
+
+    interaction_bigint = Cassandra::Types::Bigint.new(interaction.id)
+
+    user_id_bigint = Cassandra::Types::Bigint.new(interaction.user_id)
+
+    post_id_bigint = Cassandra::Types::Bigint.new(interaction.post_id)
+
+    session.execute(
+      "INSERT INTO interactions_by_time (year, month, interaction_id, user_id, post_id, interaction_type, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      arguments: [year_bigint, month_bigint, interaction_bigint, user_id_bigint, post_id_bigint, interaction.interaction_type, interaction.created_at]
+    )
+
+
   end
 
   def self.interactions_by_post(post_id, limit = 100)
@@ -93,4 +115,27 @@ end
       arguments: [user_id, hour]
     )
   end
+
+
+  def self.interactions_since(start_time)
+    year = start_time.year
+    month = start_time.month
+
+    results = session.execute(
+      "SELECT * FROM interactions_by_time WHERE year = ? AND month = ? AND created_at >= ?",
+      arguments: [year, month, start_time]
+    )
+
+    results.map do |row|
+      Interaction.new(
+        id: row['interaction_id'],
+        user_id: row['user_id'],
+        post_id: row['post_id'],
+        interaction_type: row['interaction_type'],
+        created_at: row['created_at']
+      )
+    end
+  end
+
+
 end

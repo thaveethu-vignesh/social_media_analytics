@@ -8,14 +8,18 @@ class DataGenerationService
       
       posts = DataGeneration::PostGenerator.generate(posts_count)
       posts.each do |post| 
+        # Saving post in both `posts` and `posts_by_time` tables
         PostRepository.save(post)
+        # Producing the post event to Kafka
         KafkaProducerService.produce_post(post)
       end
       Rails.logger.info "Generated, saved, and produced #{posts.count} posts"
       
       interactions = DataGeneration::InteractionGenerator.generate(interactions_count)
       interactions.each do |interaction| 
+        # Saving interaction in both `interactions` and `interactions_by_time` tables
         InteractionRepository.save(interaction)
+        # Producing the interaction event to Kafka
         KafkaProducerService.produce_interaction(interaction)
       end
       Rails.logger.info "Generated, saved, and produced #{interactions.count} interactions"

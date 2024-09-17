@@ -70,3 +70,13 @@ gem 'redis'
 gem 'hiredis'
 
 gem 'ruby-kafka'
+
+gem 'rack-attack'
+
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'rswag-specs'
+end
+
+gem 'rswag-api'
+gem 'rswag-ui'

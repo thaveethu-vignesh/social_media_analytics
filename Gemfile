@@ -69,3 +69,4 @@ gem 'redis'
 
 gem 'hiredis'
 
+gem 'ruby-kafka'

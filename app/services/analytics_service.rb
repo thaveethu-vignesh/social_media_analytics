@@ -4,6 +4,8 @@ class AnalyticsService
     interactions = InteractionRepository.interactions_by_user(user_id)
     activity_by_hour = get_user_activity_by_hour(user_id)
 
+    puts "activity_by_hour test #{activity_by_hour} "
+
     {
       user_id: user_id,
       post_count: posts.count,
@@ -24,20 +26,45 @@ class AnalyticsService
     }
   end
 
-  def self.overall_platform_stats
-    result = CassandraRepository.session.execute(
-      "SELECT * FROM platform_stats WHERE stat_date = ?",
-      arguments: [Date.today]
-    ).first
+def self.overall_platform_stats
+  timestamp = Time.now
+  day_timestamp = timestamp.beginning_of_day
+  puts "Fetching platform stats for timestamp: #{day_timestamp}"
+  
+  result = CassandraRepository.session.execute(
+    "SELECT * FROM platform_stats WHERE stat_timestamp = ?",
+    arguments: [day_timestamp]
+  ).first
 
-    {
-      total_users: result['total_users'],
-      total_posts: result['total_posts'],
-      total_interactions: result['total_interactions'],
-      average_posts_per_user: (result['total_posts'].to_f / result['total_users']).round(2),
-      average_interactions_per_post: (result['total_interactions'].to_f / result['total_posts']).round(2)
-    }
+  if result.nil?
+    puts "No platform stats found for the given timestamp"
+    return { error: "No data available" }
   end
+
+  puts "Raw result: #{result.inspect}"
+
+  total_users = result['total_users'].to_i
+  total_posts = result['total_posts'].to_i
+  total_interactions = result['total_interactions'].to_i
+
+  puts "Total users: #{total_users}"
+  puts "Total posts: #{total_posts}"
+  puts "Total interactions: #{total_interactions}"
+
+  average_posts_per_user = total_users.zero? ? 0 : (total_posts.to_f / total_users).round(2)
+  average_interactions_per_post = total_posts.zero? ? 0 : (total_interactions.to_f / total_posts).round(2)
+
+  puts "Average posts per user: #{average_posts_per_user}"
+  puts "Average interactions per post: #{average_interactions_per_post}"
+
+  {
+    total_users: total_users,
+    total_posts: total_posts,
+    total_interactions: total_interactions,
+    average_posts_per_user: average_posts_per_user,
+    average_interactions_per_post: average_interactions_per_post
+  }
+end
 
   private
 
@@ -48,7 +75,28 @@ class AnalyticsService
     )
   end
 
-  def self.find_most_active_hour(activity_by_hour)
-    activity_by_hour.max_by { |row| row['post_count'] + row['interaction_count'] }&.[]('activity_hour')
+def self.find_most_active_hour(activity_by_hour)
+  puts "Entering find_most_active_hour method"
+  puts "activity_by_hour class: #{activity_by_hour.class}"
+  puts "activity_by_hour count: #{activity_by_hour.count}"
+  
+  max_activity = nil
+  max_hour = nil
+
+  activity_by_hour.each do |row|
+    puts "Processing row: #{row.inspect}"
+    post_count = row['post_count'].to_i
+    interaction_count = row['interaction_count'].to_i
+    activity = post_count + interaction_count
+    
+    if max_activity.nil? || activity > max_activity
+      max_activity = activity
+      max_hour = row['activity_hour']
+    end
   end
+
+  puts "Max activity: #{max_activity}, Max hour: #{max_hour}"
+  max_hour
+end
+
 end

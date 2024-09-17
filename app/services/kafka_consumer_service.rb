@@ -21,16 +21,33 @@ class KafkaConsumerService
 
   def self.process_post(message)
     data = JSON.parse(message.value)
-    
-    Rails.logger.info "Processed post: #{data['id']}"
+    post = Post.new(
+      id: data['id'],
+      user_id: data['user_id'],
+      content: data['content'],
+      created_at: data['created_at']
+    )
+
+    RealTimeAnalyticsService.process_new_post(post)
+    TrendingTopicsService.update_topics(post)
+    UserEngagementService.notify_followers(post)
   rescue JSON::ParserError => e
     Rails.logger.error "Failed to parse post message: #{e.message}"
   end
 
   def self.process_interaction(message)
     data = JSON.parse(message.value)
-    
-    Rails.logger.info "Processed interaction: #{data['id']}"
+    interaction = Interaction.new(
+      id: data['id'],
+      user_id: data['user_id'],
+      post_id: data['post_id'],
+      interaction_type: data['interaction_type'],
+      created_at: data['created_at']
+    )
+
+    RealTimeAnalyticsService.process_new_interaction(interaction)
+    UserEngagementService.update_user_score(interaction.user_id)
+    ContentRecommendationService.update_post_score(interaction.post_id)
   rescue JSON::ParserError => e
     Rails.logger.error "Failed to parse interaction message: #{e.message}"
   end

@@ -1,11 +1,18 @@
 namespace :kafka do
-  desc "Start Kafka post consumer"
-  task consume_posts: :environment do
-    KafkaConsumerService.consume_posts
-  end
+  desc "Start all Kafka consumers"
+  task start_consumers: :environment do
+    threads = []
+    
+    threads << Thread.new do
+      Rails.logger.info "Starting post consumer..."
+      KafkaConsumerService.consume_posts
+    end
 
-  desc "Start Kafka interaction consumer"
-  task consume_interactions: :environment do
-    KafkaConsumerService.consume_interactions
+    threads << Thread.new do
+      Rails.logger.info "Starting interaction consumer..."
+      KafkaConsumerService.consume_interactions
+    end
+
+    threads.each(&:join)
   end
 end

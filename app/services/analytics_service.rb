@@ -1,4 +1,7 @@
 class AnalyticsService
+
+  REDIS_KEY_PREFIX = 'platform_stats:'
+  
   def self.user_activity_summary(user_id)
     posts = PostRepository.posts_by_user(user_id)
     interactions = InteractionRepository.interactions_by_user(user_id)
@@ -16,55 +19,46 @@ class AnalyticsService
     }
   end
 
-  def self.post_engagement(post_id)
-    interactions = InteractionRepository.interactions_by_post(post_id)
-
-    {
-      post_id: post_id,
-      total_interactions: interactions.count,
-      interaction_types: interactions.group_by(&:interaction_type).transform_values(&:count)
-    }
-  end
-
-def self.overall_platform_stats
-  timestamp = Time.now
-  day_timestamp = timestamp.beginning_of_day
-  puts "Fetching platform stats for timestamp: #{day_timestamp}"
-  
-  result = CassandraRepository.session.execute(
-    "SELECT * FROM platform_stats WHERE stat_timestamp = ?",
-    arguments: [day_timestamp]
-  ).first
-
-  if result.nil?
-    puts "No platform stats found for the given timestamp"
-    return { error: "No data available" }
-  end
-
-  puts "Raw result: #{result.inspect}"
-
-  total_users = result['total_users'].to_i
-  total_posts = result['total_posts'].to_i
-  total_interactions = result['total_interactions'].to_i
-
-  puts "Total users: #{total_users}"
-  puts "Total posts: #{total_posts}"
-  puts "Total interactions: #{total_interactions}"
-
-  average_posts_per_user = total_users.zero? ? 0 : (total_posts.to_f / total_users).round(2)
-  average_interactions_per_post = total_posts.zero? ? 0 : (total_interactions.to_f / total_posts).round(2)
-
-  puts "Average posts per user: #{average_posts_per_user}"
-  puts "Average interactions per post: #{average_interactions_per_post}"
+def self.post_engagement(post_id)
+  interactions = InteractionRepository.interactions_by_post(post_id)
+  puts "interactions are #{interactions.inspect}"
 
   {
-    total_users: total_users,
-    total_posts: total_posts,
-    total_interactions: total_interactions,
-    average_posts_per_user: average_posts_per_user,
-    average_interactions_per_post: average_interactions_per_post
+    post_id: post_id,
+    total_interactions: interactions.count,
+    interaction_types: interactions.group_by { |interaction| interaction[:interaction_type] }
+                                   .transform_values(&:count)
   }
 end
+
+  def self.overall_platform_stats
+    timestamp = Time.now
+    day_key = timestamp.strftime("%Y%m%d")
+    
+    puts "Fetching platform stats for day: #{day_key}"
+    
+    total_users = REDIS_CLIENT.get("#{REDIS_KEY_PREFIX}#{day_key}:total_users").to_i
+    total_posts = REDIS_CLIENT.get("#{REDIS_KEY_PREFIX}#{day_key}:total_posts").to_i
+    total_interactions = REDIS_CLIENT.get("#{REDIS_KEY_PREFIX}#{day_key}:total_interactions").to_i
+    
+    puts "Total users: #{total_users}"
+    puts "Total posts: #{total_posts}"
+    puts "Total interactions: #{total_interactions}"
+    
+    average_posts_per_user = total_users.zero? ? 0 : (total_posts.to_f / total_users).round(2)
+    average_interactions_per_post = total_posts.zero? ? 0 : (total_interactions.to_f / total_posts).round(2)
+    
+    puts "Average posts per user: #{average_posts_per_user}"
+    puts "Average interactions per post: #{average_interactions_per_post}"
+    
+    {
+      total_users: total_users,
+      total_posts: total_posts,
+      total_interactions: total_interactions,
+      average_posts_per_user: average_posts_per_user,
+      average_interactions_per_post: average_interactions_per_post
+    }
+  end
 
   private
 

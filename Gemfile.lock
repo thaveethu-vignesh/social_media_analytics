@@ -306,7 +306,7 @@ DEPENDENCIES
   rswag-api
   rswag-specs
   rswag-ui
-  ruby-kafka
+  ruby-kafka (~> 1.5)
   sass-rails (>= 6)
   selenium-webdriver (>= 4.0.0.rc1)
   sidekiq

@@ -1,4 +1,5 @@
 class DashboardController < ApplicationController
+  
   def index
     @user_count = User.count
     @post_count = Post.count

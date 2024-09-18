@@ -69,7 +69,7 @@ gem 'redis'
 
 gem 'hiredis'
 
-gem 'ruby-kafka'
+gem 'ruby-kafka', '~> 1.5'
 
 gem 'rack-attack'
 

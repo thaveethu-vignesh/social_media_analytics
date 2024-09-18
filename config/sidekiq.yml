@@ -2,5 +2,5 @@
 
 :schedule:
   calculate_all_user_influence:
-    cron: '* * * * *'  # Runs at every min, for testing
+    cron: '*/10 * * * *'  # Runs at every min, for testing
     class: CalculateAllUserInfluenceJob

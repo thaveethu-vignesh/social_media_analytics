@@ -31,7 +31,8 @@ class KafkaProducerService
 
   def self.produce_message(topic, message)
     KAFKA_CLIENT.deliver_message(message, topic: topic)
+    puts "Kafka produce success #{message} "
   rescue Kafka::Error => e
-    Rails.logger.error "Failed to produce Kafka message: #{e.message}"
+    Rails.logger.error "Failed to produce Kafka message: #{e.message} and msg #{message}"
   end
 end

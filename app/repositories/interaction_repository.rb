@@ -12,7 +12,6 @@ class InteractionRepository < CassandraRepository
     increment_user_activity(interaction.user_id, interaction.created_at, :interaction)
 
 
-    # Save to the time-series table interactions_by_time
     year = interaction.created_at.year
     month = interaction.created_at.month
 
@@ -35,12 +34,18 @@ class InteractionRepository < CassandraRepository
   end
 
   def self.interactions_by_post(post_id, limit = 100)
-    query = "SELECT * FROM interactions_by_post WHERE post_id = ? LIMIT ?"
-    arguments = [post_id, limit]
-
+    puts "Entering interactions_by_post method"
+    puts "Original post_id: #{post_id} (#{post_id.class})"
+    
+    # Convert to Cassandra bigint
+    post_id_bigint = Cassandra::Types::Bigint.new(post_id)
+    
+    puts "post_id as Cassandra::Types::Bigint: #{post_id_bigint}"
+    
     begin
-      results = session.execute(query, arguments: arguments)
-      results.map do |row|
+      statement = session.prepare("SELECT * FROM interactions_by_post WHERE post_id = ? LIMIT ?")
+      results = session.execute(statement, arguments: [post_id_bigint, limit])
+      return results.map do |row|
         {
           id: row['interaction_id'],
           user_id: row['user_id'],
@@ -49,9 +54,10 @@ class InteractionRepository < CassandraRepository
           created_at: row['created_at']
         }
       end
-    rescue Cassandra::Errors::InvalidError => e
-      Rails.logger.error "Failed to retrieve interactions for post: #{e.message}"
-      []
+    rescue => e
+      puts "Query execution failed: #{e.message}"
+      puts "Error class: #{e.class}"
+      raise
     end
   end
 

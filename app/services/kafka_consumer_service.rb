@@ -1,9 +1,13 @@
 class KafkaConsumerService
   def self.consume_posts
+
+    puts "data consumer called successfully"
     consumer = KAFKA_CLIENT.consumer(group_id: 'post_consumers')
     consumer.subscribe('posts')
 
     consumer.each_message do |message|
+
+      puts "looping messages #{message}"
       process_post(message)
     end
   end
@@ -27,6 +31,8 @@ class KafkaConsumerService
       content: data['content'],
       created_at: data['created_at']
     )
+
+    puts "Gonna process consumed messages #{message}"
 
     RealTimeAnalyticsService.process_new_post(post)
     TrendingTopicsService.update_topics(post)

@@ -2,6 +2,7 @@ class RealTimeAnalyticsService
   def self.process_new_post(post)
     update_post_count(post.user_id)
     update_hourly_post_rate
+    puts "Realtime process_new_post is done"
   end
 
   def self.process_new_interaction(interaction)
@@ -12,6 +13,7 @@ class RealTimeAnalyticsService
   private
 
   def self.update_post_count(user_id)
+    puts "update_post_count key is user:#{user_id}:post_count"
     REDIS_CLIENT.incr("user:#{user_id}:post_count")
   end
 

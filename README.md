@@ -9,7 +9,7 @@ This Social Media Analytics Sample app is a Ruby on Rails application . It uses 
 ## Architecture
 
 ```
-[User] --> [Rails Application]
+[User] --> [social_media_analytics Application]
               |
               |--> [Cassandra] (Data Storage)
               |

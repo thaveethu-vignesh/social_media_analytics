@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Api::V1::UserAnalyticsController, type: :controller do
+  let(:auth_token) { '12345' } # Set the valid auth token here
+
   describe 'GET #activity_summary' do
     let(:user_id) { '123' }
     let(:summary_data) { { posts: 10, likes: 20, comments: 5 } }
@@ -10,18 +12,18 @@ RSpec.describe Api::V1::UserAnalyticsController, type: :controller do
     end
 
     it 'returns http success' do
-      get :activity_summary, params: { id: user_id }
+      get :activity_summary, params: { id: user_id, auth_token: auth_token }
       expect(response).to have_http_status(:success)
     end
 
     it 'returns the correct activity summary' do
-      get :activity_summary, params: { id: user_id }
+      get :activity_summary, params: { id: user_id, auth_token: auth_token }
       expect(JSON.parse(response.body)).to eq(summary_data.as_json)
     end
 
     it 'calls AnalyticsService with the correct user id' do
       expect(AnalyticsService).to receive(:user_activity_summary).with(user_id)
-      get :activity_summary, params: { id: user_id }
+      get :activity_summary, params: { id: user_id, auth_token: auth_token }
     end
   end
 
@@ -38,18 +40,20 @@ RSpec.describe Api::V1::UserAnalyticsController, type: :controller do
     end
 
     it 'returns http success' do
-      get :top_influencers
+      get :top_influencers, params: { auth_token: auth_token }
       expect(response).to have_http_status(:success)
     end
 
     it 'returns the correct top influencers data' do
-      get :top_influencers
+      get :top_influencers, params: { auth_token: auth_token }
       expect(JSON.parse(response.body)).to eq(influencers_data.as_json)
     end
 
     it 'calls UserInfluenceService to get top influencers' do
       expect(UserInfluenceService).to receive(:get_top_influencers)
-      get :top_influencers
+      get :top_influencers, params: { auth_token: auth_token }
     end
   end
 end
+
+# Run rspec spec/requests/api/v1/user_analytics_controller_spec.rb

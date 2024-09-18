@@ -80,3 +80,5 @@ end
 
 gem 'rswag-api'
 gem 'rswag-ui'
+
+gem 'activerecord-import'

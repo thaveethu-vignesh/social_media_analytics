@@ -1,12 +1,24 @@
+require 'securerandom'
+
+
+
 class InteractionRepository < CassandraRepository
   def self.save(interaction)
+
+    # Generate a random 64-bit integer (bigint)
+    random_bigint = SecureRandom.random_number(2**63 - 1)
+
+    # Create Cassandra::Types::Bigint objects
+    interaction_bigint = Cassandra::Types::Bigint.new(random_bigint)
+
+
     session.execute(
       "INSERT INTO interactions_by_user (user_id, interaction_id, post_id, interaction_type, created_at) VALUES (?, ?, ?, ?, ?)",
-      arguments: [interaction.user_id, interaction.id, interaction.post_id, interaction.interaction_type, interaction.created_at]
+      arguments: [interaction.user_id, interaction_bigint, interaction.post_id, interaction.interaction_type, interaction.created_at]
     )
     session.execute(
       "INSERT INTO interactions_by_post (post_id, interaction_id, user_id, interaction_type, created_at) VALUES (?, ?, ?, ?, ?)",
-      arguments: [interaction.post_id, interaction.id, interaction.user_id, interaction.interaction_type, interaction.created_at]
+      arguments: [interaction.post_id, interaction_bigint, interaction.user_id, interaction.interaction_type, interaction.created_at]
     )
     increment_counter("platform_stats", "total_interactions", 1)
     increment_user_activity(interaction.user_id, interaction.created_at, :interaction)
@@ -19,7 +31,10 @@ class InteractionRepository < CassandraRepository
 
     month_bigint = Cassandra::Types::Bigint.new(month)
 
-    interaction_bigint = Cassandra::Types::Bigint.new(interaction.id)
+ 
+
+
+    #interaction_bigint = Cassandra::Types::Bigint.new(interaction.id)
 
     user_id_bigint = Cassandra::Types::Bigint.new(interaction.user_id)
 

@@ -9,6 +9,9 @@ class DataGenerationService
       posts = DataGeneration::PostGenerator.generate(posts_count)
       posts.each do |post| 
         # Saving post in both `posts` and `posts_by_time` tables
+
+        puts "Going to save to Cassandra #{post.inspect}"
+
         PostRepository.save(post)
         # Producing the post event to Kafka
         KafkaProducerService.produce_post(post)

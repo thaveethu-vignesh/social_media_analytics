@@ -1,12 +1,21 @@
 require 'date'
 require 'cassandra'
 
+require 'securerandom'
+
 
 class PostRepository < CassandraRepository
   def self.save(post)
+
+    # Generate a random 64-bit integer (bigint)
+    random_bigint = SecureRandom.random_number(2**63 - 1)
+
+    post_id_bigint = Cassandra::Types::Bigint.new(random_bigint)
+
+
     session.execute(
       "INSERT INTO posts_by_user (user_id, post_id, content, created_at) VALUES (?, ?, ?, ?)",
-      arguments: [post.user_id, post.id, post.content, post.created_at]
+      arguments: [post.user_id, post_id_bigint, post.content, post.created_at]
     )
     increment_counter("platform_stats", "total_posts", 1)
     increment_user_activity(post.user_id, post.created_at, :post)
@@ -20,31 +29,22 @@ class PostRepository < CassandraRepository
     month_bigint = Cassandra::Types::Bigint.new(month)
 
 
-    post_id = Integer(post.id)  
+    #post_id = Integer(post.id)  
     user_id = Integer(post.user_id)  
 
 
     user_id_bigint = Cassandra::Types::Bigint.new(post.user_id)
 
-    post_id_bigint = Cassandra::Types::Bigint.new(post.id)
-
-    session.execute(
-      "INSERT INTO test_sample (year, month, post_id, user_id, content) VALUES (?, ?, ?, ?, ?)",
-      arguments: [year_bigint, month_bigint, post_id_bigint, user_id_bigint, post.content]
-    )
 
 
-    puts "Sample insert done , going to actual insert #{post.inspect} "
 
-    Rails.logger.info("Inserting post: #{post.inspect}")
-
-    post_id = post.id.to_i  # Ensure post_id is an integer
+    #post_id = post.id.to_i  # Ensure post_id is an integer
     user_id = post.user_id.to_i  # Ensure user_id is an integer
     year = post.created_at.year.to_i
     month = post.created_at.month.to_i
     created_at = post.created_at.to_time  # Ensure this is a valid timestamp
 
-    puts "Prepared values: year=#{year}, month=#{month}, post_id=#{post_id}, user_id=#{user_id}, created_at=#{created_at}"
+    puts "Prepared values: year=#{year}, month=#{month}, post_id=#{post_id_bigint}, user_id=#{user_id}, created_at=#{created_at}"
 
     # Save to the original posts table
 

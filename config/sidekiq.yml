@@ -1,6 +1,11 @@
 # config/sidekiq.yml
 
-:schedule:
-  calculate_all_user_influence:
-    cron: '*/10 * * * *'  # Runs at every min, for testing
-    class: CalculateAllUserInfluenceJob
+#:schedule:
+ # calculate_all_user_influence:
+  #  cron: '*/10 * * * *'  # Runs at every min, for testing
+   # class: CalculateAllUserInfluenceJob
+
+
+:queues:
+  - high_priority
+  - default

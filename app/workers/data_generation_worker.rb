@@ -1,7 +1,7 @@
 class DataGenerationWorker
   include Sidekiq::Worker
 
-  sidekiq_options retry: 3
+  sidekiq_options queue: 'high_priority', retry: 3
 
   def perform(users_count, posts_count, interactions_count)
     begin

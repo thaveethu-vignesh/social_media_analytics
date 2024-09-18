@@ -2,6 +2,7 @@
 
 class CalculateAllUserInfluenceJob
   include Sidekiq::Job
+  sidekiq_options queue: 'default'
 
   def perform
     User.find_each do |user|

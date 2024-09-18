@@ -68,7 +68,7 @@ class RealTimeAnalyticsService
     REDIS_CLIENT.incr("hourly_interaction_rate:#{current_hour}")
   end
 
-  def self.update_daily_stats(type, user_id = nil)
+def self.update_daily_stats(type, user_id = nil)
     day_key = Time.now.strftime("%Y%m%d")
     
     case type
@@ -77,9 +77,9 @@ class RealTimeAnalyticsService
     when :interactions
       REDIS_CLIENT.incr("#{REDIS_KEY_PREFIX}#{day_key}:total_interactions")
     when :users
-      REDIS_CLIENT.sadd("#{REDIS_KEY_PREFIX}#{day_key}:unique_users", user_id)
-      REDIS_CLIENT.set("#{REDIS_KEY_PREFIX}#{day_key}:total_users", 
-                       REDIS_CLIENT.scard("#{REDIS_KEY_PREFIX}#{day_key}:unique_users"))
+      if REDIS_CLIENT.sadd?("#{REDIS_KEY_PREFIX}#{day_key}:unique_users", user_id)
+        REDIS_CLIENT.incr("#{REDIS_KEY_PREFIX}#{day_key}:total_users")
+      end
     end
-  end
+end
 end

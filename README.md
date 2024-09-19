@@ -135,3 +135,76 @@ GET /api/v1/real_time_analytics/popular_posts
 Data Generation:
 
 POST /api/v1/generate_data
+
+
+
+
+
+
+# Social Media Analytics Project Architecture
+
+<img width="730" alt="Screenshot 2024-09-19 at 2 43 03 PM" src="https://github.com/user-attachments/assets/ee8155ae-a761-4d10-998a-4326757dfb72">
+
+
+## Overview
+This project is built using Ruby on Rails to demonstrate various concepts and technologies commonly used in large-scale social media analytics systems. The architecture is designed to handle data generation, storage, real-time processing, and analytics computation.
+
+## Key Components
+
+### 1. Ruby on Rails Application
+- Core of the project, handling business logic and API endpoints
+- Integrates with various data stores and services
+
+### 2. Data Generator Service
+- Simulates user activities (posts, interactions) asynchronously using Sidekiq
+- Publishes data to MySQL, Cassandra, and Kafka
+
+### 3. Storage
+- MySQL: Used for learning and basic data storage
+- Cassandra: Primary storage for scalability, with multiple tables optimized for different query patterns
+
+### 4. Kafka
+- Enables real-time data streaming for analytics
+- Producers: Data Generator Service
+- Consumers: Process streams for real-time analytics
+
+### 5. Redis
+- Stores computed analytics data (e.g., popular posts, trending topics) using ZSET structure
+- Caching layer for improved performance
+- Supports Sidekiq for background job processing
+
+### 6. Sidekiq
+- Manages asynchronous tasks, including data generation and influencer computation
+
+### 7. API Layer
+- Exposes endpoints for frontend to access various data and analytics
+
+## Data Flow
+
+1. Data Generation:
+   - Sidekiq tasks simulate user activities
+   - Generated data is stored in MySQL and Cassandra
+   - Events are published to Kafka
+
+2. Real-time Processing:
+   - Kafka consumers process incoming data streams
+   - Compute analytics like popular posts, trending topics, and influencer data
+   - Store results in Redis using appropriate data structures (e.g., ZSET)
+
+3. Batch Processing:
+   - Separate Sidekiq task computes influencer data periodically
+
+4. Data Access:
+   - API endpoints retrieve data from various sources (MySQL, Cassandra, Redis)
+   - Serve processed analytics and raw data to the frontend
+
+## Scalability Considerations
+
+- Cassandra: Distributed nature allows for horizontal scaling of data storage
+- Kafka: Enables parallel processing of real-time data streams
+- Redis: Provides fast access to computed analytics and serves as a caching layer
+- Sidekiq: Allows for distributed and scalable background job processing
+
+
+
+

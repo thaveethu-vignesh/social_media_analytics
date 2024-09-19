@@ -187,5 +187,10 @@ This project is built using Ruby on Rails to demonstrate various concepts and te
 - Sidekiq: Allows for distributed and scalable background job processing
 
 
+## APP Screenshots
+<img width="1781" alt="Screenshot 2024-09-19 at 4 35 11 PM" src="https://github.com/user-attachments/assets/41543913-d4e0-4d6f-aee4-d02cd553e832">
+<img width="1774" alt="Screenshot 2024-09-19 at 7 06 29 PM" src="https://github.com/user-attachments/assets/862eff4f-d9a5-463f-98ef-a5bc3bbf0327">
+<img width="1728" alt="Screenshot 2024-09-19 at 7 06 38 PM" src="https://github.com/user-attachments/assets/04fb5db5-f2ea-4eb3-a6f0-295564a012d1">
+<img width="1560" alt="Screenshot 2024-09-19 at 7 06 45 PM" src="https://github.com/user-attachments/assets/a72874c5-6932-40b7-b329-8c7268b814ed">
 
 

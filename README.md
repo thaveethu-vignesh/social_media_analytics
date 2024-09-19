@@ -141,7 +141,7 @@ POST /api/v1/generate_data
 
 
 
-# Social Media Analytics Project Architecture
+# Project Architecture
 
 <img width="730" alt="Screenshot 2024-09-19 at 2 43 03 PM" src="https://github.com/user-attachments/assets/ee8155ae-a761-4d10-998a-4326757dfb72">
 

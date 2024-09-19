@@ -82,3 +82,6 @@ gem 'rswag-api'
 gem 'rswag-ui'
 
 gem 'activerecord-import'
+
+gem 'rack-cors'
+

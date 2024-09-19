@@ -11,6 +11,9 @@ Rails.application.routes.draw do
         end
       end
 
+
+      resources :posts, only: [:show]
+
       # Post Analytics
       resources :post_analytics, only: [] do
         member do
@@ -23,6 +26,7 @@ Rails.application.routes.draw do
         get 'overall_stats'
         get 'post_trends'
         get 'interaction_trends'
+        post 'generate_data'
       end
 
       # Real-time Analytics

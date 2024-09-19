@@ -53,7 +53,33 @@ class PostRepository < CassandraRepository
       arguments: [year_bigint, month_bigint, post_id_bigint, user_id_bigint, post.content, post.created_at]
     )
 
+    session.execute(
+    "INSERT INTO posts_by_id (post_id, year, month, created_at, content, user_id) 
+     VALUES (?, ?, ?, ?, ?, ?)",
+    arguments: [
+      post_id_bigint,
+      year_bigint,
+      month_bigint,
+      post.created_at,
+      post.content,
+      user_id_bigint
+    ]
+  )
 
+
+  end
+
+
+  def self.find_post_by_id(post_id)
+
+     post_id_bigint = Cassandra::Types::Bigint.new(post_id)
+
+    result = session.execute(
+      "SELECT * FROM posts_by_id WHERE post_id = ?",
+      arguments: [post_id_bigint]
+    )
+    post = result.first
+    post ? format_post(post) : nil
   end
 
   def self.find(user_id, post_id)
@@ -126,6 +152,17 @@ def self.posts_by_user(user_id, limit = 10)
 end
 
   private
+
+  def self.format_post(post)
+    {
+      post_id: post['post_id'],
+      year: post['year'],
+      month: post['month'],
+      created_at: post['created_at'].to_time.iso8601,
+      content: post['content'],
+      user_id: post['user_id']
+    }
+  end
 
   def self.build_post(row)
     Post.new(

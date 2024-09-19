@@ -2,6 +2,7 @@ class TrendingTopicsService
   def self.update_topics(post)
     topics = extract_topics(post.content)
     current_hour = Time.now.strftime("%Y%m%d%H")
+    puts "update_topics TrendingTopicsService called"
 
     topics.each do |topic|
       REDIS_CLIENT.zincrby("trending_topics:#{current_hour}", 1, topic)

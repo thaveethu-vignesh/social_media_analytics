@@ -1,4 +1,4 @@
-class TrendAnalysisService
+class TrendingAnalysisService
   def self.analyze_post_trends(time_range = 7.days)
     start_time = time_range.ago
     posts = PostRepository.posts_since(start_time)

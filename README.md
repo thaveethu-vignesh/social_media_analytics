@@ -6,25 +6,6 @@
 
 This Social Media Analytics Sample app is a Ruby on Rails application . It uses Cassandra for storing large volumes of data, Redis for caching and real-time analytics, and Kafka for real-time data streaming.
 
-## Architecture
-
-```
-[User] --> [social_media_analytics Application]
-              |
-              |--> [Cassandra] (Data Storage)
-              |
-              |--> [Redis] (Caching & Real-time Analytics)
-              |
-              |--> [Kafka] (Data Streaming)
-              |
-              |--> [Sidekiq] (Background Jobs)
-```
-
-- **Rails Application**: Handles HTTP requests, processes data, and serves API endpoints.
-- **Cassandra**: Stores posts, interactions, and other large-scale data.
-- **Redis**: Caches frequently accessed data and stores real-time analytics.
-- **Kafka**: Streams real-time data for processing.
-- **Sidekiq**: Manages background jobs for data processing and analytics calculations.
 
 ## Prerequisites
 
